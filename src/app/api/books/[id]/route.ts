@@ -2,13 +2,13 @@
 import { NextResponse } from 'next/server';
 import { getPool } from '@/lib/db';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const pool = getPool();
-  const id = params.id;
+export const GET = async (
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) => {
+  const { id } = await params;
   
+  const pool = getPool();
   try {
     const query = 'SELECT * FROM books WHERE id = $1';
     const result = await pool.query(query, [id]);
@@ -30,15 +30,15 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export const PUT = async (
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) => {
   const pool = getPool();
-  const id = params.id;
+  const { id } = await params;
   
   try {
-    const body = await request.json();
+    const body = await req.json();
     const { title, author, genre, year_published, rating, read_status } = body;
     
     const query = `
@@ -68,15 +68,15 @@ export async function PUT(
   }
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export const PATCH = async (
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) => {
   const pool = getPool();
-  const id = params.id;
+  const { id } = await params;
   
   try {
-    const updateData = await request.json();
+    const updateData = await req.json();
     
     // Dynamically create the SET part of the query
     const fields = Object.keys(updateData);
@@ -109,12 +109,12 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export const DELETE = async (
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) => {
   const pool = getPool();
-  const id = params.id;
+  const { id } = await params;
   
   try {
     const query = 'DELETE FROM books WHERE id = $1 RETURNING *';
